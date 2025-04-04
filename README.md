@@ -1,33 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quran Recitation Checker
+
+A Next.js application that helps users practice Quran recitation by providing a platform to record and check their recitations against the original Arabic text.
 
 ## Getting Started
 
-First, run the development server:
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technical Overview
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Architecture
 
-## Learn More
+This application is built with the following technologies:
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend**: Next.js
+- **UI Components**: Shadcn UI (based on Radix UI)
+- **Audio Processing**: Web Audio API
+- **Speech Recognition**: Web Speech API (browser-based)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Core Components
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+#### 1. Main Components
+
+- `components/recitation-checker.tsx`: The primary component that handles:
+  - Verse selection and display
+  - Audio recording functionality
+  - Transcription processing
+  - UI for the recitation checking process
+
+#### 2. API Routes
+
+- `app/api/quran/route.ts`: Proxies requests to the Quran API ([api.alquran.cloud](https://alquran.cloud/api)) to avoid CORS issues and handles text normalization for proper Arabic display
+
+### Key Features
+
+#### 1. Quran Text Fetching
+
+The application fetches Quranic verses from the Quran API with the following capabilities:
+- Fetch specific surah (chapter)
+- Fetch specific verse ranges using offset and limit parameters
+- Properly handle and display Arabic text with diacritical marks
+
+#### 2. Audio Recording
+
+The app uses the browser's MediaRecorder API to:
+- Record user recitations
+- Process audio in chunks for real-time feedback
+
+#### 3. Arabic Text Processing
+
+Special care is taken to properly display Arabic text:
+- Uses specialized Arabic fonts (Amiri, Scheherazade New, Noto Naskh Arabic)
+- Implements text normalization to handle special Unicode characters
+- Preserves essential diacritical marks for proper Quranic recitation
+
+#### 4. Transcription
+
+The transcription is handled by the browser's Web Speech API, which:
+- Converts audio to text in real-time
+- Provides interim results for immediate feedback
+- Handles partial and final transcriptions
+
+#### 5. Word Matching
+
+The application matches words from the expected verse with the transcribed text using a simple Levenshtein distance algorithm to calculate similarity. This provides a basic measure of accuracy.
+
+#### 6. Progress Tracking
+
+The application tracks the progress of the recitation by:
+- Displaying the current verse and percentage completed
+- Providing a progress bar to show the user's progress
 
 ## Deploy on Vercel
 
