@@ -2,6 +2,8 @@
 
 A Next.js application that helps users practice Quran recitation by providing a platform to record and check their recitations against the original Arabic text.
 
+![screenshot](docs/screenshot.png)
+
 ## Getting Started
 
 Run the development server:
