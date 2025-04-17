@@ -67,7 +67,6 @@ export class RealTranscriptionService {
   private isActive: boolean = false;
   private recognition: SpeechRecognition | null = null;
   private callback: TranscriptionCallback | null = null;
-  private currentTranscription: string = '';
   private audioContext: AudioContext | null = null;
   private analyzer: AnalyserNode | null = null;
   private mediaStream: MediaStream | null = null;
@@ -85,7 +84,6 @@ export class RealTranscriptionService {
       // Reset state
       this.isActive = true;
       this.callback = callback;
-      this.currentTranscription = '';
       this.lastSpeechTime = Date.now();
       
       // Check if browser supports SpeechRecognition
@@ -112,10 +110,9 @@ export class RealTranscriptionService {
         const result = event.results[event.results.length - 1];
         const transcript = result[0].transcript;
         
-        // Update transcription and notify callback
-        this.currentTranscription = transcript;
+        // Notify callback directly
         if (this.callback) {
-          this.callback(this.currentTranscription);
+          this.callback(transcript);
         }
         
         // Update last speech time
@@ -225,7 +222,6 @@ export class RealTranscriptionService {
             const silenceDuration = currentTime - this.lastSpeechTime;
             
             if (silenceDuration > 4000) { // At least 4 seconds of silence
-              console.log('Stopping due to prolonged silence');
               this.stop();
             } else {
               // Not enough silence, reset timer
@@ -275,14 +271,7 @@ export class RealTranscriptionService {
     }
     
     this.callback = null;
-    this.currentTranscription = '';
   }
-  
-
-  
-
-  
-
 }
 
 // Create a singleton instance

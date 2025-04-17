@@ -22,7 +22,6 @@ This application is built with the following technologies:
 
 - **Frontend**: Next.js
 - **UI Components**: Shadcn UI (based on Radix UI)
-- **Audio Processing**: Web Audio API
 - **Speech Recognition**: Web Speech API (browser-based)
 
 ### Core Components
@@ -33,7 +32,7 @@ This application is built with the following technologies:
   - Verse selection and display
   - Audio recording functionality
   - Transcription processing
-  - UI for the recitation checking process
+  - Recitation checking
 
 #### 2. API Routes
 
@@ -46,33 +45,28 @@ This application is built with the following technologies:
 The application fetches Quranic verses from the Quran API with the following capabilities:
 - Fetch specific surah (chapter)
 - Fetch specific verse ranges using offset and limit parameters
-- Properly handle and display Arabic text with diacritical marks
+- Display Arabic text
 
-#### 2. Audio Recording
-
-The app uses the browser's MediaRecorder API to:
-- Record user recitations
-- Process audio in chunks for real-time feedback
-
-#### 3. Arabic Text Processing
+#### 2. Arabic Text Processing
 
 Special care is taken to properly display Arabic text:
 - Uses specialized Arabic fonts (Amiri, Scheherazade New, Noto Naskh Arabic)
 - Implements text normalization to handle special Unicode characters
 - Preserves essential diacritical marks for proper Quranic recitation
 
-#### 4. Transcription
+#### 3. Transcription
 
 The transcription is handled by the browser's Web Speech API, which:
 - Converts audio to text in real-time
-- Provides interim results for immediate feedback
+- Provides feedback while speaking
 - Handles partial and final transcriptions
 
-#### 5. Word Matching
+#### 4. Word Matching
 
-The application matches words from the expected verse with the transcribed text using a simple Levenshtein distance algorithm to calculate similarity. This provides a basic measure of accuracy.
+The application splits the expected verse into individual words using Arabic-specific text recognition (matching Unicode character ranges \u0600-\u06FF), then compares each word against the transcribed text.
+Apply Levenshtein distance algorithm with Arabic character normalization, to evaluates similarity at the word level rather than the entire verse.
 
-#### 6. Progress Tracking
+#### 5. Progress Tracking
 
 The application tracks the progress of the recitation by:
 - Displaying the current verse and percentage completed
