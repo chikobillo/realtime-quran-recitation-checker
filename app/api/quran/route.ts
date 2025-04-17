@@ -14,6 +14,12 @@ const normalizeArabicText = (text: string): string => {
     .trim();
 };
 
+// Define a proper type for the ayah object
+interface Ayah {
+  text: string;
+  [key: string]: unknown; // Allow other properties
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const surah = searchParams.get('surah');
@@ -66,7 +72,7 @@ export async function GET(request: NextRequest) {
       
       // For multiple verses response
       if (data.data.ayahs && Array.isArray(data.data.ayahs)) {
-        data.data.ayahs = data.data.ayahs.map((ayah: any) => {
+        data.data.ayahs = data.data.ayahs.map((ayah: Ayah) => {
           if (ayah.text) {
             ayah.text = normalizeArabicText(ayah.text);
           }

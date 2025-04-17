@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -54,6 +54,11 @@ const normalizeArabicText = (text: string): string => {
     .trim();
 };
 
+interface AyahResponse {
+  text: string;
+  [key: string]: unknown;
+}
+
 export function RecitationChecker() {
   const [verses, setVerses] = useState<string[]>([]);
   const [selectedVerse, setSelectedVerse] = useState<string>('');
@@ -63,8 +68,8 @@ export function RecitationChecker() {
   const [accuracy, setAccuracy] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [processingChunk, setProcessingChunk] = useState(false);
-  const [perfectMatch, setPerfectMatch] = useState(false);
+  const [processingChunk] = useState(false); // Removed unused setter
+  const [isPerfectMatch, setIsPerfectMatch] = useState(false);
 
   
   // Refs for audio handling
@@ -187,7 +192,7 @@ export function RecitationChecker() {
         const allVerses = data.data.ayahs;
         
         // Map the verses to their text content
-        const verses = allVerses.map((v: any) => {
+        const verses = allVerses.map((v: AyahResponse) => {
           // Ensure proper encoding of Arabic text and normalize it
           const text = normalizeArabicText(v.text);
           return text;
@@ -258,7 +263,7 @@ export function RecitationChecker() {
     
     // Only stop if we've detected a significant portion of the verse
     if (allMatched) {
-      setPerfectMatch(true);
+      setIsPerfectMatch(true);
       toast.success('Perfect recitation detected! 🎉');
       stopRecording();
     } else if (allWordsAboveThreshold) {
@@ -275,7 +280,7 @@ export function RecitationChecker() {
       setMatchResults([]);
       setAccuracy(0);
       setAudioUrl(null);
-      setPerfectMatch(false);
+      setIsPerfectMatch(false);
       audioChunksRef.current = [];
       
       // Use the real transcription service
@@ -296,6 +301,9 @@ export function RecitationChecker() {
   
   // Clean up on unmount
   useEffect(() => {
+    // Store the ref in a variable for cleanup
+    const currentAudioContext = audioContextRef.current;
+    
     return () => {
       // Stop transcription service when component unmounts
       realTranscriptionService.stop();
@@ -305,8 +313,9 @@ export function RecitationChecker() {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
       
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close();
+      // Use the captured variable instead of accessing the ref directly
+      if (currentAudioContext && currentAudioContext.state !== 'closed') {
+        currentAudioContext.close();
       }
     };
   }, []);
@@ -356,8 +365,8 @@ export function RecitationChecker() {
     const expectedWords = expectedVerse.match(arabicWordRegex) || [];
     const transcribedWords = transcription.match(arabicWordRegex) || [];
     
-    // Use the word matching service to get detailed results
-    const matchDetails = wordMatchingService.matchWords(expectedVerse, transcription, 0.6);
+    // Use the word matching service but don't destructure values we don't use
+    wordMatchingService.matchWords(expectedVerse, transcription, 0.6);
     
     // Convert to the format expected by the component
     const results: MatchResult[] = [];
@@ -402,17 +411,18 @@ export function RecitationChecker() {
   // The similarity calculation has been moved to the word-matching-service
 
   // Watch for changes in the selected Surah to update verse options
+  const surahValue = form.watch('surah');
+  
   useEffect(() => {
-    const surah = form.watch('surah');
-    if (surah) {
-      const surahNumber = parseInt(surah);
+    if (surahValue) {
+      const surahNumber = parseInt(surahValue);
       const verseCount = versesPerSurah[surahNumber - 1];
       
       // Reset verse selections when Surah changes
       form.setValue('startVerse', '1');
       form.setValue('endVerse', Math.min(3, verseCount).toString()); // Default to first 3 verses or less
     }
-  }, [form.watch('surah')]);
+  }, [surahValue, form]); // Include form in dependencies
 
   return (
     <div className="space-y-8">
@@ -694,6 +704,16 @@ export function RecitationChecker() {
                   </AlertDescription>
                 </Alert>
               </div>
+            )}
+
+            {/* Perfect match status */}
+            {isPerfectMatch && (
+              <Alert className="mt-4 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+                <AlertTitle>Perfect Match! 🎉</AlertTitle>
+                <AlertDescription>
+                  Congratulations! Your recitation perfectly matches the expected verse.
+                </AlertDescription>
+              </Alert>
             )}
           </CardContent>
         </Card>

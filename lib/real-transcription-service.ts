@@ -6,7 +6,7 @@ type TranscriptionCallback = (transcription: string) => void;
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
   resultIndex: number;
-  interpretation: any;
+  interpretation: unknown; // Changed from any to unknown
 }
 
 interface SpeechRecognitionResult {
@@ -35,17 +35,17 @@ interface SpeechRecognition extends EventTarget {
   interimResults: boolean;
   lang: string;
   maxAlternatives: number;
-  onaudioend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onaudiostart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionError) => any) | null;
-  onnomatch: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
-  onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onspeechend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onspeechstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onaudioend: ((this: SpeechRecognition, ev: Event) => void) | null; // Changed any to void
+  onaudiostart: ((this: SpeechRecognition, ev: Event) => void) | null; // Changed any to void
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null; // Changed any to void
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionError) => void) | null; // Changed any to void
+  onnomatch: ((this: SpeechRecognition, ev: Event) => void) | null; // Changed any to void
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null; // Changed any to void
+  onsoundend: ((this: SpeechRecognition, ev: Event) => void) | null; // Changed any to void
+  onsoundstart: ((this: SpeechRecognition, ev: Event) => void) | null; // Changed any to void
+  onspeechend: ((this: SpeechRecognition, ev: Event) => void) | null; // Changed any to void
+  onspeechstart: ((this: SpeechRecognition, ev: Event) => void) | null; // Changed any to void
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null; // Changed any to void
   start(): void;
   stop(): void;
   abort(): void;
@@ -161,7 +161,7 @@ export class RealTranscriptionService {
       });
       
       // Set up audio context and analyzer
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      this.audioContext = new (window.AudioContext || (window as {webkitAudioContext?: typeof AudioContext}).webkitAudioContext || AudioContext)();
       this.analyzer = this.audioContext.createAnalyser();
       this.analyzer.fftSize = 256;
       
