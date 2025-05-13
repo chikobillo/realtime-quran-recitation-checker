@@ -40,20 +40,6 @@ const arabicContainerStyle = {
   border: "1px solid var(--border)"
 };
 
-// Function to clean up Arabic text without removing essential diacritical marks
-const normalizeArabicText = (text: string): string => {
-  if (!text) return '';
-  
-  // Only remove specific problematic characters that cause display issues
-  // while preserving all diacritical marks
-  return text
-    // Remove only specific zero-width characters that cause rendering issues
-    .replace(/[\u200B\u200C\u200D\u2060\u2064]/g, '')
-    // Replace newlines with spaces
-    .replace(/\n/g, ' ')
-    .trim();
-};
-
 interface AyahResponse {
   text: string;
   [key: string]: unknown;
@@ -193,9 +179,7 @@ export function RecitationChecker() {
         
         // Map the verses to their text content
         const verses = allVerses.map((v: AyahResponse) => {
-          // Ensure proper encoding of Arabic text and normalize it
-          const text = normalizeArabicText(v.text);
-          return text;
+          return v.text;
         });
         
         // Log the retrieved verses for debugging
@@ -585,7 +569,7 @@ export function RecitationChecker() {
             <div>
               <h3 className="text-lg font-medium mb-2">Expected Verse:</h3>
               <p style={arabicContainerStyle} className="font-arabic">
-                {normalizeArabicText(selectedVerse)}
+                {selectedVerse}
               </p>
 
             </div>
@@ -627,7 +611,7 @@ export function RecitationChecker() {
               <h3 className="text-lg font-medium mb-2">Your Recitation:</h3>
               <div className="relative">
                 <p style={{...arabicContainerStyle, minHeight: "100px", transition: "all 0.2s"}} className="font-arabic">
-                  {normalizeArabicText(transcription) || (isRecording ? '...' : '')}
+                  {transcription || (isRecording ? '...' : '')}
                 </p>
                 {isRecording && processingChunk && (
                   <div className="absolute bottom-2 right-4">

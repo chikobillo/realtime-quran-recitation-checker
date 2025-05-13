@@ -1,19 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Function to clean up Arabic text without removing essential diacritical marks
-const normalizeArabicText = (text: string): string => {
-  if (!text) return '';
-  
-  // Only remove specific problematic characters that cause display issues
-  // while preserving all diacritical marks
-  return text
-    // Remove only specific zero-width characters that cause rendering issues
-    .replace(/[\u200B\u200C\u200D\u2060\u2064]/g, '')
-    // Replace newlines with spaces
-    .replace(/\n/g, ' ')
-    .trim();
-};
-
 // Define a proper type for the ayah object
 interface Ayah {
   text: string;
@@ -62,24 +48,6 @@ export async function GET(request: NextRequest) {
     }
     
     const data = await response.json();
-    
-    // Normalize Arabic text in the response
-    if (data.code === 200 && data.data) {
-      // For single verse response
-      if (data.data.text) {
-        data.data.text = normalizeArabicText(data.data.text);
-      }
-      
-      // For multiple verses response
-      if (data.data.ayahs && Array.isArray(data.data.ayahs)) {
-        data.data.ayahs = data.data.ayahs.map((ayah: Ayah) => {
-          if (ayah.text) {
-            ayah.text = normalizeArabicText(ayah.text);
-          }
-          return ayah;
-        });
-      }
-    }
     
     return NextResponse.json(data);
     
