@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Define a proper type for the ayah object
-interface Ayah {
-  text: string;
-  [key: string]: unknown; // Allow other properties
-}
-
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const surah = searchParams.get('surah');
